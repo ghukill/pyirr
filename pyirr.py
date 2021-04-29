@@ -24,7 +24,7 @@ def main(input_filepath, rater_cols):
     """
 
     # read excel document into pandas dataframe
-    df = pd.read_excel("/Users/commander/Downloads/IRR_InfraLab_04282021c.xlsx", skiprows=2)
+    df = pd.read_excel(input_filepath, skiprows=2)
 
     # drop row where Code=='Totals'
     df = df[df.Code != "Totals"]
