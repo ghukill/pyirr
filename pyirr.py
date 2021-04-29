@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 
-def main(input_filepath, rater_cols, score_low=0, score_high=10):
+def main(input_filepath, rater_cols):
 
     """
 
@@ -26,12 +26,14 @@ def main(input_filepath, rater_cols, score_low=0, score_high=10):
     # read excel document into pandas dataframe
     df = pd.read_excel("/Users/commander/Downloads/IRR_InfraLab_04282021c.xlsx", skiprows=2)
 
+    # drop row where Code=='Totals'
+    df = df[df.Code != "Totals"]
+
     # extract raters
     rater_scores = {}
     for col in rater_cols:
         r = df[col]
         r = r[~np.isnan(r)]
-        r = [x for x in r if score_low <= x <= score_high]
         rater_scores[f"{col}|{str(uuid.uuid4())}"] = r
 
     # TODO: integrity check that number of scores equal
@@ -39,7 +41,7 @@ def main(input_filepath, rater_cols, score_low=0, score_high=10):
     # structure data
     nltk_structured_scores = []
     for k, v in rater_scores.items():
-        nltk_structured_scores.extend([(k, str(i), int(s)) for i, s in enumerate(v)])
+        nltk_structured_scores.extend([(k, str(i), s) for i, s in enumerate(v)])
 
     # run NLTK agreement
     agreements = agreement.AnnotationTask(data=nltk_structured_scores)
@@ -73,8 +75,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", default="input.xlsx")
     parser.add_argument("--cols", nargs="+", default=["RF", "LR"])
-
-    # TODO: add args: skip rows, column identifiers
 
     args = parser.parse_args()
 
